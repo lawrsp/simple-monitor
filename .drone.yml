@@ -1,0 +1,51 @@
+workspace:
+  base: /go/src/pickflames.com/pickflames
+  path: monitor
+
+pipeline:
+  build:
+    image: registry.pickflames.com/go-base:1
+    pull: true
+    environment:
+      - CGO_ENABLED=0
+      - GOOS=linux
+      - GOARCH=amd64
+    commands:
+      - git clone https://coding.pickflames.com/pickflames/framework.git ../framework
+      - ls ../
+      - go get pickflames.com/pickflames/framework
+      - go vet ./...
+      #- go test ./...
+      #- go test ./product -v -args -dburl 'tcp(mysql:3306)/runtest?parseTime=true'
+      - |
+        if test "${DRONE_TAG}" = ""; then
+          go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o build/monitor
+        else
+          go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o build/monitor
+        fi
+
+  docker:
+    image: plugins/docker
+    repo: registry.pickflames.com/monitor
+    registry: registry.pickflames.com
+    context: build
+    dockerfile: build/Dockerfile
+    tags:
+      - latest
+      - 1
+    secrets: [ docker_username, docker_password ]
+
+  notify:
+    image: plugins/webhook
+    secrets:
+      - source: dingtalk_url
+        target: webhook_urls
+    when:
+      status: [ failure ]
+    template: |
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "{{ repo.name }} build {{ build.status }}"
+        }
+      }
