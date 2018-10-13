@@ -168,7 +168,11 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 			newContainerSpec.Image = param.Image
 			newSpec.TaskTemplate.ContainerSpec = newContainerSpec
 
-			result, err := c.ServiceUpdate(ctx, dsvc.ID, dsvc.Version, *newSpec, types.ServiceUpdateOptions{})
+			result, err := c.ServiceUpdate(ctx, dsvc.ID, dsvc.Version, *newSpec, types.ServiceUpdateOptions{
+				QueryRegistry:       true,
+				EncodedRegistryAuth: authStr,
+				// RegistryAuthFrom:    types.RegistryAuthFromPreviousSpec,
+			})
 			if err != nil {
 				log.Errorf("updat service %s failed: %v", dsvc.Spec.Name)
 				return err
