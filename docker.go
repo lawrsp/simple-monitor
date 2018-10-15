@@ -174,7 +174,7 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 				// RegistryAuthFrom:    types.RegistryAuthFromPreviousSpec,
 			})
 			if err != nil {
-				log.Errorf("updat service %s failed: %v", dsvc.Spec.Name)
+				log.Errorf("updat service %s failed: %v", dsvc.Spec.Name, err)
 				return err
 			}
 

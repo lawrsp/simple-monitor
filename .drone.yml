@@ -2,7 +2,6 @@ workspace:
   base: /go/src/coding.pickflames.com/pickflames
   path: monitor
 
-
 pipeline:
   build:
     image: registry.pickflames.com/go-base:1
@@ -16,7 +15,6 @@ pipeline:
       - go get github.com/docker/docker/client
       - go vet ./...
       #- go test ./...
-      #- go test ./product -v -args -dburl 'tcp(mysql:3306)/runtest?parseTime=true'
       - |
         if test "${DRONE_TAG}" = ""; then
           go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o build/monitor
