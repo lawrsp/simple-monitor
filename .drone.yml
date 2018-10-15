@@ -2,6 +2,7 @@ workspace:
   base: /go/src/coding.pickflames.com/pickflames
   path: monitor
 
+
 pipeline:
   build:
     image: registry.pickflames.com/go-base:1
