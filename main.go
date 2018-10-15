@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
-	"pickflames.com/pickflames/framework/utils/configurator"
-	"pickflames.com/pickflames/framework/utils/log"
+	"coding.pickflames.com/pickflames/framework/utils/configurator"
+	"coding.pickflames.com/pickflames/framework/utils/log"
 )
 
 type Config struct {

@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"pickflames.com/pickflames/framework/rest"
-	"pickflames.com/pickflames/framework/utils/log"
+	"coding.pickflames.com/pickflames/framework/rest"
+	"coding.pickflames.com/pickflames/framework/utils/log"
 )
 
 type RESTConfig struct {
