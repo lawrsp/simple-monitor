@@ -1,5 +1,5 @@
 workspace:
-  base: /go/src/pickflames.com/pickflames
+  base: /go/src/coding.pickflames.com/pickflames
   path: monitor
 
 pipeline:
@@ -11,9 +11,7 @@ pipeline:
       - GOOS=linux
       - GOARCH=amd64
     commands:
-      - git clone https://coding.pickflames.com/pickflames/framework.git ../framework
-      - ls ../
-      - go get pickflames.com/pickflames/framework
+      - go get coding.pickflames.com/pickflames/framework
       - go get github.com/docker/docker/client
       - go vet ./...
       #- go test ./...
@@ -50,3 +48,4 @@ pipeline:
           "content": "{{ repo.name }} build {{ build.status }}"
         }
       }
+
