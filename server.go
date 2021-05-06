@@ -64,16 +64,17 @@ func (s *Server) InitRoutes(dc *DockerClient) error {
 		ctx := context.Background()
 		param := &UpdateServiceParam{}
 		if err := c.ShouldBindJSON(param); err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
+			_ = c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
-		err := dc.UpdateService(ctx, param)
+		err := dc.UpdateService(ctx, param, c.Writer)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"result": "OK"})
+		c.AbortWithStatus(http.StatusOK)
+		// c.JSON(http.StatusOK, gin.H{"result": "OK"})
 	})
 
 	s.Engine = engine

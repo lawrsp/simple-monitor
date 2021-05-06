@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 
 func TestClient(t *testing.T) {
 
-	c, err := NewDockerClient(&DockerConfig{RegistryFile: "./registries.yaml"})
+	c, err := NewDockerClient(&DockerConfig{})
 	if err != nil {
 		t.Errorf("new client failed: %v", err)
 	}
@@ -28,9 +28,9 @@ func TestClient(t *testing.T) {
 	}
 	fmt.Println(list)
 
-	param := &UpdateServiceParam{Image: "hello-worl:latest"}
+	param := &UpdateServiceParam{Image: "hello-world:latest"}
 
-	if err := c.UpdateService(ctx, param); err != nil {
+	if err := c.UpdateService(ctx, param, os.Stdout); err != nil {
 		fmt.Println(err)
 	}
 

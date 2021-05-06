@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/urfave/cli"
 	"coding.pickflames.com/pickflames/framework/utils/configurator"
 	"coding.pickflames.com/pickflames/framework/utils/log"
+	"github.com/urfave/cli"
 )
 
 type Config struct {
@@ -21,8 +21,8 @@ func main() {
 
 	log.Infof("version(%s) build(%s)", version, build)
 	app := cli.NewApp()
-	app.Name = "order-server"
-	app.Usage = "start order server"
+	app.Name = "monitor"
+	app.Usage = "start monitor"
 	app.Action = run
 	app.Version = version
 	app.Flags = []cli.Flag{
@@ -32,10 +32,12 @@ func main() {
 		cli.StringFlag{
 			Name:   "rest-address",
 			EnvVar: "REST_ADDRESS",
+			Value:  "127.0.0.1:9001",
 		},
 		cli.StringFlag{
 			Name:   "rest-access-token",
 			EnvVar: "REST_ACCESS_TOKEN",
+			Value:  "test",
 		},
 
 		//

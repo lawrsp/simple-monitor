@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -125,7 +124,7 @@ func (p *UpdateServiceParam) Match(dsvc *swarm.Service) bool {
 	return true
 }
 
-func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServiceParam) error {
+func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServiceParam, dst io.Writer) error {
 	if param.Image == "" {
 		return fmt.Errorf("no image")
 	}
@@ -150,7 +149,7 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 
 	defer out.Close()
 
-	io.Copy(os.Stdout, out)
+	io.Copy(dst, out)
 
 	// find the image used by which service
 	services, err := c.ServiceList(ctx, types.ServiceListOptions{})
