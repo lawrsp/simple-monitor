@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.13
 
 ADD ./monitor /usr/local/pickflames/monitor
 
