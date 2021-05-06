@@ -31,24 +31,28 @@ steps:
 
 - name: docker
   image: plugins/docker
-  repo: registry.pickflames.com/monitor
-  registry: registry.pickflames.com
-  context: build
-  dockerfile: build/Dockerfile
-  auto_tag: true
-  secrets: [ docker_username, docker_password ]
+  settings:
+    repo: registry.pickflames.com/monitor
+    registry: registry.pickflames.com
+    context: build
+    dockerfile: build/Dockerfile
+    auto_tag: true
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
 
 - name: notify-failure
   image: plugins/webhook
-  secrets:
-    - source: dingtalk_url
-      target: webhook_urls
   when:
     status: [ failure ]
-  template: |
-    {
-      "msgtype": "text",
-      "text": {
-        "content": "{{ repo.name }} build {{ build.status }}"
+  settings:
+    urls:
+      from_secret: dingtalk_url
+    template: |
+      {
+        "msgtype": "text",
+        "text": {
+          "content": "{{ repo.name }} build {{ build.status }}"
+        }
       }
-    }
