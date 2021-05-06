@@ -17,14 +17,16 @@ steps:
     GO111MODULE: on
     GOPROXY: https://goproxy.cn
   commands:
-  - go get coding.pickflames.com/pickflames/framework
-  - go get github.com/docker/docker/client
+  - go version
+  - cd  ../
+  - git clone https://coding.pickflames.com/pickflames/framework.git
+  - cd -
   - go vet ./...
   - |
     if test "${DRONE_TAG}" = ""; then
-    go build -v -ldflags "-X main.build=${DRONE_COMMIT_SHA:0:8}" -a -o build/monitor
+       go build -v -ldflags "-X main.build=${DRONE_COMMIT_SHA:0:8}" -a -o build/monitor
     else
-    go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_COMMIT_SHA:0:8}" -a -o build/monitor
+       go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_COMMIT_SHA:0:8}" -a -o build/monitor
     fi
 
 - name: docker
