@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	"coding.pickflames.com/pickflames/framework/rest"
 	"coding.pickflames.com/pickflames/framework/utils/log"
+	"github.com/gin-gonic/gin"
 )
 
 type RESTConfig struct {
@@ -32,7 +32,7 @@ func (s *Server) InitRoutes(dc *DockerClient) error {
 	engine := gin.New()
 
 	engine.Use(gin.Logger())
-	engine.Use(rest.CheckAndRecovery())
+	engine.Use(gin.HandlerFunc(rest.CheckAndRecovery()))
 	// check permission
 	engine.Use(func(c *gin.Context) {
 		token := c.Query("access_token")
