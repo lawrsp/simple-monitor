@@ -67,6 +67,8 @@ func (s *Server) InitRoutes(dc *DockerClient) error {
 			_ = c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
+
+		c.Header("Transfer-Encoding", "chunked")
 		err := dc.UpdateService(ctx, param, c.Writer)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
