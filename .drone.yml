@@ -9,18 +9,18 @@ workspace:
 
 steps:
 - name: build
-  image: golang:1.16-buster
+  image: golang:1.18-buster
   environment:
     CGO_ENABLED: 0
     GOOS: linux
     GOARCH: amd64
     GO111MODULE: on
     GOPROXY: https://goproxy.cn
+    GOPRIVATE: coding.pickflames.com
+    GONOPROXY: coding.pickflames.com
+    GONOSUMDB: coding.pickflames.com
   commands:
   - go version
-  - cd  ../
-  - git clone https://coding.pickflames.com/pickflames/framework.git
-  - cd -
   - go vet ./...
   - |
     if test "${DRONE_TAG}" = ""; then
