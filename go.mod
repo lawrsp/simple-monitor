@@ -2,10 +2,8 @@ module coding.pickflames.com/monitor
 
 go 1.16
 
-replace coding.pickflames.com/pickflames/framework => ../framework
-
 require (
-	coding.pickflames.com/pickflames/framework v0.0.0-00010101000000-000000000000
+	coding.pickflames.com/pickflames/framework v1.3.4
 	github.com/containerd/containerd v1.5.0 // indirect
 	github.com/docker/docker v20.10.6+incompatible
 	github.com/docker/go-connections v0.4.0 // indirect
