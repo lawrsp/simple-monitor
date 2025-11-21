@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM registry.pickflames.com/alpine:3.19
 
 ADD ./monitor /usr/local/pickflames/monitor
 

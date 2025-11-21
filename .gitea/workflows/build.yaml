@@ -1,0 +1,73 @@
+name: Build Action
+run-name: ${{ gitea.actor }} is building development
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  Build-Development:
+    runs-on: linux-base
+    env:
+      CGO_ENABLED: 0
+      GOOS: linux
+      GOARCH: amd64
+      GO111MODULE: on
+      GOPROXY: https://goproxy.cn
+      GOPRIVATE: coding.pickflames.com
+      GONOPROXY: coding.pickflames.com
+      GONOSUMDB: coding.pickflames.com
+      GOEXPERIMENT: jsonv2
+
+    steps:
+      - name: Prepare
+        run: |
+          touch ~/.netrc && chmod 600 ~/.netrc
+          echo "machine coding.pickflames.com login drone password ${{ secrets.READ_TOKEN }}" >> ~/.netrc
+          echo "BUILD_SHA=${GITHUB_SHA:0:8}" >> ${GITHUB_ENV}
+          echo "BUILD_VERSION=${GITHUB_REF_NAME}" >> ${GITHUB_ENV}
+      - name: Checkout
+        uses: https://gitea.com/actions/checkout@v4
+      - name: Vet and Test
+        run: |
+          go version
+          go vet ./...
+          go test ./...
+
+      - name: Build
+        run: |
+          go build -v -ldflags "-X main.version=${BUILD_VERSION} -X main.build=${BUILD_SHA}" -a -o build/monitor
+      - name: Set up Docker Buildx
+        uses: https://gitea.com/docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64
+          config-inline: |
+            [registry."docker.io"]
+              mirrors = ["docker.m.daocloud.io"]
+      - name: Login to private registry
+        uses: https://gitea.com/docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker build and push
+        uses: https://gitea.com/docker/build-push-action@v5
+        with:
+          context: build
+          platforms: linux/amd64
+          push: true
+          file: build/Dockerfile
+          tags: |
+            ${{ secrets.DOCKER_REGISTRY }}/monitor:latest
+      - name: Notify failure
+        if: failure()
+        run: >-
+          curl -X POST ${{ secrets.DINGTALK_ROBOT_URL }}
+          -H "Content-Type: application/json"
+          --data
+          '{
+          "msgtype": "text",
+          "text": {
+            "content": "${{ github.event.repository.name }}  build failed"
+            }
+          }'

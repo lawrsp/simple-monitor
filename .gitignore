@@ -1,5 +1,6 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+
 # temp files
 [#]*[#]
 .*
@@ -7,6 +8,8 @@
 !.editorconfig
 !.drone.yml
 !.dockerignore
+!.gitea
+!.github
 
 # dependencies
 /node_modules
