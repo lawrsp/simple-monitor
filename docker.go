@@ -130,6 +130,8 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 		return fmt.Errorf("no image")
 	}
 
+	log.Infof("update services %v", param.Image)
+
 	var authStr string
 	if names := strings.Split(param.Image, "/"); len(names) > 1 {
 		url := names[0]
