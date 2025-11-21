@@ -39,6 +39,11 @@ func main() {
 			EnvVar: "REST_ACCESS_TOKEN",
 			Value:  "test",
 		},
+		cli.IntFlag{
+			Name:   "rest-use-h-2-c",
+			EnvVar: "REST_USE_H_2_C",
+			Value:  0,
+		},
 
 		//
 		// docker
