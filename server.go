@@ -13,6 +13,7 @@ import (
 type RESTConfig struct {
 	Address     string
 	AccessToken string
+	UseH2C      bool
 }
 
 type Server struct {
@@ -29,7 +30,11 @@ func NewServer(c *RESTConfig) (*Server, error) {
 
 func (s *Server) InitRoutes(dc *DockerClient) error {
 
-	engine := gin.New()
+	engine := gin.New(func(e *gin.Engine) {
+		if s.Config.UseH2C {
+			e.UseH2C = true
+		}
+	})
 
 	engine.Use(gin.Logger())
 	engine.Use(gin.HandlerFunc(rest.CheckAndRecovery()))
