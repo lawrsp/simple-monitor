@@ -6,9 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"strings"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/api/types/swarm"
 	"github.com/docker/docker/client"
 	yaml "gopkg.in/yaml.v2"
@@ -23,7 +26,7 @@ type DockerConfig struct {
 
 type DockerClient struct {
 	*client.Client
-	auths map[string]*types.AuthConfig
+	auths map[string]*registry.AuthConfig
 }
 
 func NewDockerClient(conf *DockerConfig) (*DockerClient, error) {
@@ -34,7 +37,7 @@ func NewDockerClient(conf *DockerConfig) (*DockerClient, error) {
 
 	cli.NegotiateAPIVersion(context.Background())
 
-	c := &DockerClient{Client: cli, auths: map[string]*types.AuthConfig{}}
+	c := &DockerClient{Client: cli, auths: map[string]*registry.AuthConfig{}}
 
 	// read registry config
 	if err := c.readRegistryAuths(conf.RegistryFile); err != nil {
@@ -56,23 +59,21 @@ func (c *DockerClient) readRegistryAuths(filePath string) error {
 		return err
 	}
 
-	conf := map[string]*types.AuthConfig{}
+	conf := map[string]*registry.AuthConfig{}
 	err = yaml.Unmarshal(bs, conf)
 	if err != nil {
 		log.Errorf("parse registry file %s failed: %v", filePath, err)
 		return err
 	}
 
-	for k, v := range conf {
-		c.auths[k] = v
-	}
+	maps.Copy(c.auths, conf)
 
 	return nil
 }
 
 func (c *DockerClient) ListContainers(ctx context.Context) ([]string, error) {
 
-	containers, err := c.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := c.ContainerList(ctx, container.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +85,9 @@ func (c *DockerClient) ListContainers(ctx context.Context) ([]string, error) {
 	return nil, nil
 }
 
-func (c *DockerClient) ListServices(ctx context.Context) (interface{}, error) {
+func (c *DockerClient) ListServices(ctx context.Context) (any, error) {
 
-	services, err := c.ServiceList(ctx, types.ServiceListOptions{})
+	services, err := c.ServiceList(ctx, swarm.ServiceListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 		}
 	}
 
-	out, err := c.ImagePull(ctx, param.Image, types.ImagePullOptions{RegistryAuth: authStr})
+	out, err := c.ImagePull(ctx, param.Image, image.PullOptions{RegistryAuth: authStr})
 	if err != nil {
 		return fmt.Errorf("pull image failed: %v", err)
 	}
@@ -152,7 +153,7 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 	io.Copy(dst, out)
 
 	// find the image used by which service
-	services, err := c.ServiceList(ctx, types.ServiceListOptions{})
+	services, err := c.ServiceList(ctx, swarm.ServiceListOptions{})
 	if err != nil {
 		return err
 	}
@@ -167,7 +168,7 @@ func (c *DockerClient) UpdateService(ctx context.Context, param *UpdateServicePa
 			newContainerSpec.Image = param.Image
 			newSpec.TaskTemplate.ContainerSpec = newContainerSpec
 
-			result, err := c.ServiceUpdate(ctx, dsvc.ID, dsvc.Version, *newSpec, types.ServiceUpdateOptions{
+			result, err := c.ServiceUpdate(ctx, dsvc.ID, dsvc.Version, *newSpec, swarm.ServiceUpdateOptions{
 				QueryRegistry:       true,
 				EncodedRegistryAuth: authStr,
 				// RegistryAuthFrom:    types.RegistryAuthFromPreviousSpec,
