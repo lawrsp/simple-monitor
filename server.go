@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"runtime"
 
 	"coding.pickflames.com/pickflames/framework/rest"
 	"coding.pickflames.com/pickflames/framework/utils/log"
@@ -37,7 +38,27 @@ func (s *Server) InitRoutes(dc *DockerClient) error {
 	})
 
 	engine.Use(gin.Logger())
-	engine.Use(gin.HandlerFunc(rest.CheckAndRecovery()))
+	engine.Use(func(c *gin.Context) {
+		defer func() {
+			//check panic error
+			if e := recover(); e != nil {
+				if err, ok := e.(rest.HttpStatusCoder); ok {
+					c.AbortWithStatusJSON(err.HttpStatus(), err)
+					return
+				}
+
+				//stack trace:
+				buf := make([]byte, 1<<10)
+				runtime.Stack(buf, false)
+				log.Errorf("UnCaught Error: %v\n%s\n", e, buf)
+
+				c.AbortWithStatus(http.StatusInternalServerError)
+			}
+		}()
+
+		c.Next()
+	})
+
 	// check permission
 	engine.Use(func(c *gin.Context) {
 		token := c.Query("access_token")
